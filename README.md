@@ -1,6 +1,6 @@
 # Private Geocoder with Hintless PIR
 
-A privacy-preserving geocoding service using Hintless PIR to query location data without revealing queries to the server.
+A simple setup to do privacy-preserving reverse geocoding service using Hintless PIR. Client and server scripts to query location data without revealing queries to the server.
 
 ## Prerequisites
 
@@ -19,13 +19,11 @@ git clone https://github.com/google/hintless_pir.git
 cd hintless_pir
 
 # Checkout the version this project was built with
-git checkout b8f4c3a  # Based on IACR ePrint 2023/1733
+git checkout 4be2ae8  # Based on IACR ePrint 2023/1733
 
 # Build the Python bindings (optimized)
 bazel build -c opt //hintless_simplepir:hintless_pir_cpp.so
 ```
-
-**Note:** If you don't specify a commit, using `main` branch should also work.
 
 ### 2. Copy the Compiled Library
 
@@ -37,19 +35,11 @@ mkdir -p /path/to/private_geocoder/bazel-bin/hintless_simplepir
 cp bazel-bin/hintless_simplepir/hintless_pir_cpp.so \
    /path/to/private_geocoder/bazel-bin/hintless_simplepir/
 ```
-
-### 3. Install Dependencies
-
-```bash
-cd /path/to/private_geocoder
-pip install requests
-```
-
-### 4. Prepare Database
-
-Place your database files in `data/database/`:
-- `beijing_grid_to_id.bin` - Segment database (256×256, 2 bytes/record)
-- `street_names.bin` - Street names database (134×134, 60 bytes/record)
+### 3. Prepare Database
+Currently, there is an exisiting database for Beijing. Adding scripts for automatic database generation is work-in-progress.
+- `data/database/beijing_grid_to_id.bin` - Segment database (256×256, 2 bytes/record)
+- `data/database/street_names.bin` - Street names database (134×134, 60 bytes/record)
+  
 
 ## Usage
 
@@ -76,17 +66,6 @@ python3 pir_client.py 39.9075 116.3974
 2. Client generates PIR query for segment database: `POST /segment`
 3. Client generates PIR query for street database: `POST /street`
 4. Server responds without learning what was queried
-
-## Troubleshooting
-
-**Slow preprocessing:**
-Ensure you built with `-c opt` flag. Library should be ~7MB, not 20MB.
-
-**Response size error:**
-Client must call `/pir?init=1` before making queries.
-
-**Import error:**
-Verify `hintless_pir_cpp.so` is in `bazel-bin/hintless_simplepir/`.
 
 ## Files
 
